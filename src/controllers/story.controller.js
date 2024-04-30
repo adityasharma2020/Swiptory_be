@@ -2,9 +2,8 @@ import { getStories, getUserStory, likeStory, bookMarkStory } from '../services/
 
 export const getStoriesByCategory = async (req, res, next) => {
 	try {
-		const { category } = req.query;
-		console.log(category);
-		const stories = await getStories({ category });
+		const { category,page } = req.query;
+		const stories = await getStories({ category,page });
 		res.status(201).json({
 			success: 'Stories fetched successfully.',
 			data: stories,

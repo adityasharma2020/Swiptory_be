@@ -18,6 +18,7 @@
 import mongoose from 'mongoose';
 import validator from 'validator';
 import bcrypt from 'bcrypt';
+const { ObjectId } = mongoose.Schema.Types;
 
 const userSchema = mongoose.Schema(
 	{
@@ -36,6 +37,10 @@ const userSchema = mongoose.Schema(
 			type: String,
 			default:
 				'https://res.cloudinary.com/djf3xntwm/image/upload/v1713765216/al5h35z88nevd1mdw4re.jpg',
+		},
+		bookmarks: {
+			type: [ObjectId],
+			ref: 'StoryModel',
 		},
 		password: {
 			type: String,

@@ -1,4 +1,4 @@
-import { createStory, getAllStories, getUserStory ,updateUserStory} from '../services/user.service.js';
+import { createStory, getAllStories, getUserStory,getAllBookMarkStories ,updateUserStory} from '../services/user.service.js';
 
 export const addStory = async (req, res, next) => {
 	try {
@@ -20,8 +20,8 @@ export const getAllUserStories = async (req, res, next) => {
 	try {
 		const { user } = req;
 		const { userId } = user;
-		const { storyId } = req.params;
-		const stories = await getAllStories({ userId, storyId });
+		const { page } = req.query;
+		const stories = await getAllStories({ userId, page });
 		res.status(201).json({
 			success: 'All user stories fetched successfully.',
 			data: stories,
@@ -56,6 +56,22 @@ export const updateStorybyId = async (req, res, next) => {
 		res.status(201).json({
 			success: 'Story with given Id updated successfully.',
 			data: updatedStory,
+		});
+	} catch (error) {
+		next(error);
+	}
+};
+
+// getAllUserBookmarkStories
+export const getAllUserBookmarkStories = async (req, res, next) => {
+	try {
+		const { user } = req;
+		const { userId } = user;
+		const { page } = req.query;
+		const stories = await getAllBookMarkStories({ userId, page });
+		res.status(201).json({
+			success: 'All user bookmark stories fetched successfully.',
+			data: stories,
 		});
 	} catch (error) {
 		next(error);

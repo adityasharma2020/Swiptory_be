@@ -1,51 +1,21 @@
 import createHttpError from 'http-errors';
-import { StoryModel } from '../models/index.js';
+import { StoryModel ,UserModel} from '../models/index.js';
 
 export const getStories = async ({ category, page = 1, limit = 4 }) => {
-	let stories;
 	const skip = (page - 1) * limit;
-
-	if (category && category !== 'All') {
-		console.log('inside if :', category);
-		stories = await StoryModel.find({ category: category });
-		const total = await StoryModel.countDocuments({ category: category });
-		const remaining = total - (skip + stories.length);
-		//just to make the frontend more structured, we pass it as an object with category as key
-		return { data: { [category]: stories }, remaining: remaining };
-	} else {
-		// we basically fetch all the category based stories and pass category wise stories to make it generic
-		console.log('inside else:', category);
-		stories = await StoryModel.find({}).sort({ createdAt: -1 });
-		const total = await StoryModel.countDocuments({});
-		const isRemaining = skip + stories.length < total;
-
-		// now to just to transform our stories of all categories  in the desired shape
-		const categorizedStories = stories.reduce((acc, story) => {
-			if (!acc[story.category]) {
-				acc[story.category] = []; // if already an key  for an category not added then add that key with the [] array as value.
-			}
-			if (acc[story.category].length < limit) {
-				acc[story.category].push(story);
-			}
-			return acc;
-		}, {});
-
-		//remaining count for each category
-
-		const remainingCounts = await Promise.all(
-			Object.keys(categorizedStories).map(async (category) => {
-				const total = await StoryModel.countDocuments({ category: category });
-				const remaining = total - categorizedStories[category].length;
-				return { category, remaining };
-			})
-		);
-
-		return {
-			data: categorizedStories,
-			isRemaining: isRemaining,
-			remainingCounts: remainingCounts,
-		};
+	if (!category) {
+		throw createHttpError.BadRequest('provide category name.');
 	}
+
+	const stories = await StoryModel.find({ category })
+		.sort({ createdAt: -1 })
+		.skip(skip)
+		.limit(limit);
+
+	const totalCount = await StoryModel.countDocuments({ category });
+	const remainingCount = totalCount - (page - 1) * limit - stories.length;
+
+	return { data: stories, remainingCount, category };
 };
 
 export const getUserStory = async ({ storyId }) => {
@@ -103,6 +73,13 @@ export const bookMarkStory = async ({ userId, storyId }) => {
 	}
 
 	story.bookmarks.push(userId);
+
+	// update the users bookmarks array also so that we dont have to do nested looping when we want to show all users bookmarks
+	const user = await UserModel.findById(userId);
+	if (!user.bookmarks.includes(storyId)) {
+		user.bookmarks.push(storyId);
+		await user.save();
+	}
 
 	await story.save();
 

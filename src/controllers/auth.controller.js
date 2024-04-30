@@ -18,7 +18,7 @@ import { createUser, signUser } from '../services/auth.service.js';
 import { generateToken, verifyToken } from '../services/token.service.js';
 
 
-const accessTokenExpiration = '2min';
+const accessTokenExpiration = '1d';
 
 
 export const register = async (req, res, next) => {
@@ -43,6 +43,7 @@ export const register = async (req, res, next) => {
 				name: newUser.name,
 				email: newUser.email,
 				picture: newUser.picture,
+				bookmarks:newUser.bookmarks,
 				token: access_token,
 			},
 		});
@@ -56,13 +57,13 @@ export const login = async (req, res, next) => {
 		const { email, password } = req.body;
 
 		const user = await signUser(email, password);
-
+		
 		const access_token = await generateToken(
 			{ userId: user._id },
 			accessTokenExpiration,
 			process.env.ACCESS_TOKEN_SECRET
 		);
-
+		
 		res.json({
 			message: 'login success.',
 			user: {
@@ -70,6 +71,7 @@ export const login = async (req, res, next) => {
 				name: user.name,
 				email: user.email,
 				picture: user.picture,
+				bookmarks:user.bookmarks,
 				token: access_token,
 			},
 		});

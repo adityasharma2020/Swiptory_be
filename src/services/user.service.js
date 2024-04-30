@@ -1,5 +1,5 @@
 import createHttpError from 'http-errors';
-import { StoryModel } from '../models/index.js';
+import { StoryModel, UserModel } from '../models/index.js';
 
 export const createStory = async ({ addedBy, category, slides }) => {
 	//check if fields are empty
@@ -19,13 +19,38 @@ export const createStory = async ({ addedBy, category, slides }) => {
 	return story;
 };
 
-export const getAllStories = async ({ userId }) => {
+export const getAllStories = async ({ userId, page, limit = 4 }) => {
+	const skip = (page - 1) * limit;
 	if (!userId) {
 		throw createHttpError.BadRequest('userId not provided properly.');
 	}
 
-	const stories = await StoryModel.find({ addedBy: userId }).sort({ createdAt: -1 });
-	return stories;
+	const stories = await StoryModel.find({ addedBy: userId })
+		.sort({ createdAt: -1 })
+		.skip(skip)
+		.limit(limit);
+
+	const totalCount = await StoryModel.countDocuments({ addedBy: userId });
+	const remainingCount = totalCount - skip - stories.length;
+	return { data: stories, remainingCount };
+};
+
+export const getAllBookMarkStories = async ({ userId, page, limit = 4 }) => {
+	const skip = (page - 1) * limit;
+	if (!userId) {
+		throw createHttpError.BadRequest('userId not provided properly.');
+	}
+
+	const { bookmarks } = await UserModel.findById({ _id: userId }).populate({
+		path: 'bookmarks',
+		model: 'StoryModel',
+		options: { sort: { createdAt: -1 } },
+	});
+	const totalStories = bookmarks.length;
+	const updatedStories = bookmarks.slice(skip, skip + limit);
+	const remainingCount = totalStories - skip - updatedStories.length;
+
+	return { data: updatedStories, remainingCount: Math.max(0, remainingCount) };
 };
 
 export const getUserStory = async ({ userId, storyId }) => {
