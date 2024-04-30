@@ -75,13 +75,14 @@ export const updateUserStory = async ({ userId, storyId, category, slides }) => 
 	if (!storyId) {
 		throw createHttpError.BadRequest('please provide storyId.');
 	}
-
+	
 	const story = await StoryModel.findById({ _id: storyId });
+	console.log("sdafasdf",story.addedBy, userId);
 	if (!story) {
 		throw createHttpError.NotFound('story with given id not found.');
 	}
-
-	if (story.addedBy !== userId) {
+	
+	if (String(story.addedBy) !== userId) {
 		throw createHttpError.BadRequest('You are not allowed to update this story.');
 	}
 

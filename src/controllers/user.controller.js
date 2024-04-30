@@ -50,7 +50,7 @@ export const updateStorybyId = async (req, res, next) => {
 	try {
 		const { user } = req;
 		const { userId } = user;
-		const { storyId } = req.params;
+		const {id: storyId } = req.params;
 		const { category, slides } = req.body;
 		const updatedStory = await updateUserStory({ userId, storyId,slides,category });
 		res.status(201).json({
