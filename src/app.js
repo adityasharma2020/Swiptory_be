@@ -21,7 +21,7 @@ import routes from './routes/index.js';
 dotenv.config();
 
 // CORS Allowed origin
-const allowedOrigins = ['http://localhost:5173'];
+const allowedOrigins = ['http://localhost:5173','https://theswiptory.netlify.app'];
 const corsOptions = {
 	origin: function (origin, callback) {
 		// Check if the origin is in the list of allowed origins
