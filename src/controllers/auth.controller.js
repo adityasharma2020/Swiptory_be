@@ -32,7 +32,6 @@ export const register = async (req, res, next) => {
 			process.env.ACCESS_TOKEN_SECRET
 		);
 
-		console.table({ access_token });
 
 		//--------------send response-----------------------------
 

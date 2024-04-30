@@ -66,7 +66,6 @@ export const createUser = async (userData) => {
 
 export const signUser = async (email, password) => {
 	const user = await UserModel.findOne({ email: email.toLowerCase() }).lean();
-	console.log('user in services :', user);
 	//check if user/email exists
 	if (!user) {
 		throw createHttpError.NotFound('Invalid credentials');
