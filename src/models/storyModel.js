@@ -28,7 +28,7 @@ const storySchema = mongoose.Schema(
 	{
 		category: {
 			type: String,
-			enum: ['Food', 'Health', 'travel', 'Movie', 'Education','Medical','World','India'],
+			enum: ['Food', 'Health', 'Travel', 'Movie', 'Education','Medical','World','India'],
 			required: [true, 'Please provide Id of story creator.'],
 		},
 
