@@ -77,7 +77,7 @@ export const updateUserStory = async ({ userId, storyId, category, slides }) => 
 	}
 	
 	const story = await StoryModel.findById({ _id: storyId });
-	console.log("sdafasdf",story.addedBy, userId);
+
 	if (!story) {
 		throw createHttpError.NotFound('story with given id not found.');
 	}

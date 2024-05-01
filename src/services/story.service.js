@@ -1,5 +1,5 @@
 import createHttpError from 'http-errors';
-import { StoryModel ,UserModel} from '../models/index.js';
+import { StoryModel, UserModel } from '../models/index.js';
 
 export const getStories = async ({ category, page = 1, limit = 4 }) => {
 	const skip = (page - 1) * limit;
@@ -42,17 +42,21 @@ export const likeStory = async ({ userId, storyId }) => {
 	if (!story) {
 		throw createHttpError.NotFound('story with given id not found.');
 	}
-
-	if (story.likes.includes(userId)) {
-		throw createHttpError.BadRequest('you have already liked this story.');
+	const index = story.likes.indexOf(userId);
+	let message;
+	if (index !== -1) {
+		story.likes.splice(index, 1);
+		story.likeCount -= 1;
+		message = 'story disliked successfully.';
+	} else {
+		story.likeCount += 1;
+		story.likes.push(userId);
+		message = 'story liked successfully.';
 	}
-
-	story.likeCount += 1;
-	story.likes.push(userId);
 
 	await story.save();
 
-	return story;
+	return { story, message };
 };
 
 export const bookMarkStory = async ({ userId, storyId }) => {
@@ -67,21 +71,28 @@ export const bookMarkStory = async ({ userId, storyId }) => {
 	if (!story) {
 		throw createHttpError.NotFound('story with given id not found.');
 	}
-
-	if (story.bookmarks.includes(userId)) {
-		throw createHttpError.BadRequest('you have already bookmarked this story.');
+	const index = story.bookmarks.indexOf(userId);
+	let message;
+	if (index !== -1) {
+		story.bookmarks.splice(index, 1);
+		message = 'story unbokmarked successfully.';
+	} else {
+		story.bookmarks.push(userId);
+		message = 'story bookmarked successfully.';
 	}
-
-	story.bookmarks.push(userId);
 
 	// update the users bookmarks array also so that we dont have to do nested looping when we want to show all users bookmarks
 	const user = await UserModel.findById(userId);
-	if (!user.bookmarks.includes(storyId)) {
+	const indexBookmark = user.bookmarks.indexOf(storyId);
+
+	if (indexBookmark !== -1) {
+		user.bookmarks.splice(index, 1);
+	} else {
 		user.bookmarks.push(storyId);
-		await user.save();
 	}
+	await user.save();
 
 	await story.save();
 
-	return story;
+	return { story, message };
 };

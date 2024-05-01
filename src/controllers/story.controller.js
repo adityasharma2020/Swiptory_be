@@ -33,9 +33,9 @@ export const likeStoryById = async (req, res, next) => {
 		const { user } = req;
 		const { userId } = user;
 		const { id: storyId } = req.params;
-		const story = await likeStory({ userId, storyId });
+		const {story,message} = await likeStory({ userId, storyId });
 		res.status(201).json({
-			success: 'Story liked successfully.',
+			success: message,
 			data: story,
 		});
 	} catch (error) {
@@ -48,9 +48,9 @@ export const bookMarkStoryById = async (req, res, next) => {
 		const { user } = req;
 		const { userId } = user;
 		const { id:storyId } = req.params;
-		const story = await bookMarkStory({ userId, storyId });
+		const {story,message} = await bookMarkStory({ userId, storyId });
 		res.status(201).json({
-			success: 'Story bookmarked successfully.',
+			success: message,
 			data: story,
 		});
 	} catch (error) {
